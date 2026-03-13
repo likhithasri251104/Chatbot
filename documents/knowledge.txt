@@ -1,0 +1,4 @@
+NeoStats is a technology company focused on building intelligent AI solutions.
+
+Retrieval Augmented Generation (RAG) is a technique where an AI model retrieves relevant
+information from external documents before generating a response.
