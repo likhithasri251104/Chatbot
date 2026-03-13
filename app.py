@@ -37,7 +37,15 @@ if prompt:
     if mode == "Concise":
         response = f"{context}\n\n{web_results}"
     else:
-        response = f"Context from documents:\n{context}\n\nAdditional web info:\n{web_results}"
+        response = f"""
+    Answer based on document knowledge:
+
+    {context}
+
+    Additional information from web search:
+
+    {web_results}
+    """
 
     with st.chat_message("assistant"):
         st.write(response)
