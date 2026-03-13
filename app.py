@@ -1,13 +1,8 @@
-import sys
-import os
 import streamlit as st
+from utils.rag_utils import load_documents, retrieve_context
+from utils.web_search import search_web
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-import utils.rag_utils as rag_utils
-import utils.web_search as web_search
-
-st.set_page_config(page_title="AI Knowledge Assistant", page_icon="🤖")
+st.set_page_config(page_title="AI Knowledge Assistant")
 
 st.title("AI Knowledge Assistant Chatbot")
 
@@ -16,8 +11,9 @@ mode = st.sidebar.radio(
     ["Concise", "Detailed"]
 )
 
-if "vector_db" not in st.session_state:
-    st.session_state.vector_db = rag_utils.build_vector_database()
+if "docs_loaded" not in st.session_state:
+    load_documents()
+    st.session_state.docs_loaded = True
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -29,18 +25,19 @@ for msg in st.session_state.messages:
 prompt = st.chat_input("Ask something...")
 
 if prompt:
+
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     with st.chat_message("user"):
         st.write(prompt)
 
-    context = rag_utils.retrieve_context(prompt, st.session_state.vector_db)
-    web_results = web_search.search_web(prompt)
+    context = retrieve_context(prompt)
+    web_results = search_web(prompt)
 
     if mode == "Concise":
-        response = f"Short answer based on context:\n\n{context}\n\nWeb info:\n{web_results}"
+        response = f"{context}\n\n{web_results}"
     else:
-        response = f"Detailed explanation based on context:\n\n{context}\n\nWeb info:\n{web_results}"
+        response = f"Context from documents:\n{context}\n\nAdditional web info:\n{web_results}"
 
     with st.chat_message("assistant"):
         st.write(response)
