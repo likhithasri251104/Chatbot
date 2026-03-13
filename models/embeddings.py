@@ -1,11 +1,6 @@
-from langchain.embeddings import HuggingFaceEmbeddings
+from sentence_transformers import SentenceTransformer
 
-def get_embedding_model():
-    try:
-        embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
-        )
-        return embeddings
-    except Exception as e:
-        print("Embedding model error:", e)
-        return None
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+def get_embedding(text):
+    return model.encode(text)
