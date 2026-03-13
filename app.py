@@ -4,8 +4,8 @@ import streamlit as st
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from utils.rag_utils import build_vector_database, retrieve_context
-from utils.web_search import search_web
+import utils.rag_utils as rag_utils
+import utils.web_search as web_search
 
 st.set_page_config(page_title="AI Knowledge Assistant", page_icon="🤖")
 
@@ -17,7 +17,7 @@ mode = st.sidebar.radio(
 )
 
 if "vector_db" not in st.session_state:
-    st.session_state.vector_db = build_vector_database()
+    st.session_state.vector_db = rag_utils.build_vector_database()
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -34,8 +34,8 @@ if prompt:
     with st.chat_message("user"):
         st.write(prompt)
 
-    context = retrieve_context(prompt, st.session_state.vector_db)
-    web_results = search_web(prompt)
+    context = rag_utils.retrieve_context(prompt, st.session_state.vector_db)
+    web_results = web_search.search_web(prompt)
 
     if mode == "Concise":
         response = f"Short answer based on context:\n\n{context}\n\nWeb info:\n{web_results}"
