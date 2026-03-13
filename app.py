@@ -1,4 +1,9 @@
+import sys
+import os
 import streamlit as st
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from utils.rag_utils import build_vector_database, retrieve_context
 from utils.web_search import search_web
 
