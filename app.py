@@ -1,0 +1,43 @@
+import streamlit as st
+from utils.rag_utils import build_vector_database, retrieve_context
+from utils.web_search import search_web
+
+st.set_page_config(page_title="AI Knowledge Assistant", page_icon="🤖")
+
+st.title("AI Knowledge Assistant Chatbot")
+
+mode = st.sidebar.radio(
+    "Response Mode",
+    ["Concise", "Detailed"]
+)
+
+if "vector_db" not in st.session_state:
+    st.session_state.vector_db = build_vector_database()
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.write(msg["content"])
+
+prompt = st.chat_input("Ask something...")
+
+if prompt:
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+    with st.chat_message("user"):
+        st.write(prompt)
+
+    context = retrieve_context(prompt, st.session_state.vector_db)
+    web_results = search_web(prompt)
+
+    if mode == "Concise":
+        response = f"Short answer based on context:\n\n{context}\n\nWeb info:\n{web_results}"
+    else:
+        response = f"Detailed explanation based on context:\n\n{context}\n\nWeb info:\n{web_results}"
+
+    with st.chat_message("assistant"):
+        st.write(response)
+
+    st.session_state.messages.append({"role": "assistant", "content": response})
