@@ -1,31 +1,24 @@
-from langchain_community.vectorstores import FAISS
-from langchain_community.document_loaders import TextLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from models.embeddings import get_embedding_model
+import numpy as np
+from models.embeddings import get_embedding
 
-def build_vector_database():
+documents = []
+vectors = []
 
-    loader = TextLoader("documents/knowledge.txt")
-    documents = loader.load()
+def load_documents():
+    global documents, vectors
 
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50
-    )
+    with open("documents/knowledge.txt", "r") as f:
+        docs = f.readlines()
 
-    chunks = splitter.split_documents(documents)
-
-    embeddings = get_embedding_model()
-
-    vector_db = FAISS.from_documents(chunks, embeddings)
-
-    return vector_db
+    documents = docs
+    vectors = [get_embedding(doc) for doc in docs]
 
 
-def retrieve_context(query, vector_db):
+def retrieve_context(query):
+    query_vec = get_embedding(query)
 
-    results = vector_db.similarity_search(query, k=3)
+    scores = [np.dot(query_vec, v) for v in vectors]
 
-    context = "\n".join([doc.page_content for doc in results])
+    best_index = np.argmax(scores)
 
-    return context
+    return documents[best_index]
